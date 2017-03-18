@@ -24,6 +24,7 @@ const config = {
 var nightmare = Nightmare(config);
 
 app.get('/', function (req, res) {
+  console.log('Hello World!');
   nightmare
     .goto('https://www.linkedin.com/uas/login')
     .type('#session_key-login', 'hi@thomasjeanneau.com')
