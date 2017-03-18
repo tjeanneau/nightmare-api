@@ -2,44 +2,60 @@
  * Created by thomasjeanneau on 18/03/2017.
  */
 
-var Nightmare = require('nightmare');
-var express = require('express');
-var app = express();
+import Nightmare from 'nightmare';
+import express from 'express';
+import bodyParser from 'body-parser';
+import simplecrypt from 'simplecrypt';
 
-var server = app.listen(process.env.PORT || 3000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('App listening at http://%s:%s', host, port)
+const sc = simplecrypt({
+  password: 'bhmEB1bgG2qwl31vCXeCPuuct3I7Iq0N9q0g1OQF',
+  salt: 'E1F53235E559C254',
 });
 
-const config = {
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+const port = process.env.PORT || 5000;
+const router = express.Router();
+
+const nightmare = Nightmare({
   show: false,
   dock: false,
   loadTimeout: 10000, // in ms
   gotoTimeout: 10000, // in ms
   waitTimeout: 15000, // in ms
   executionTimeout: 10000, // in ms
-};
+});
 
-var nightmare = Nightmare(config);
-
-app.get('/', function (req, res) {
-  console.log('Hello World!');
+router.get('/linkedin/validate', (req, res) => {
+  const { email, cryptPassword } = req.query;
+  //const password = sc.decrypt('salut')
   nightmare
     .goto('https://www.linkedin.com/uas/login')
-    .type('#session_key-login', 'hi@thomasjeanneau.com')
-    .type('#session_password-login', 'Xf0WfnOBOPfUwrY1bXeNsGAGfAvDGjN0kuTNxrOf')
+    .type('#session_key-login', email)
+    .type('#session_password-login', cryptPassword)
     .click('#btn-primary')
     .wait('#extended-nav-search')
-    .evaluate(function () {
+    .evaluate(() => {
       return window.location.href;
     })
     .end()
-    .then(function (title) {
-      console.log(title === 'https://www.linkedin.com/nhome/?trk=' || title === 'https://www.linkedin.com/feed/?trk=')
+    .then((title) => {
+      res.json({
+        isValidated: (title === 'https://www.linkedin.com/nhome/?trk=' || title === 'https://www.linkedin.com/feed/?trk=')
+      });
     })
-    .catch(function (err) {
-      console.log(err)
+    .catch((err) => {
+      console.log(err);
+      res.json({
+        isValidated: false
+      });
     });
-  res.send('Hello World!')
 });
+
+app.use('/api', router);
+
+app.listen(port);
+console.log('Magic happens on port ' + port);
