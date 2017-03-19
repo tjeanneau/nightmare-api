@@ -6,10 +6,6 @@ tjeanneau/nightmare-api:
   PkgExclude:
     - node_modules/
 
-  PreRelease:
-    - sudo apt-get install npm -y
-    - sudo npm install
-
   PreInstall:
     - sudo apt-get update
     - sudo apt-get install nodejs-legacy -y
