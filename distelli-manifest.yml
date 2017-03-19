@@ -7,7 +7,7 @@ tjeanneau/nightmare-api:
     - node_modules/
 
   PreRelease:
-    - npm install
+    - sudo npm install
 
   PreInstall:
     - sudo apt-get update
@@ -20,7 +20,7 @@ tjeanneau/nightmare-api:
     - echo "Done Installing Nightmare"
 
   PostInstall:
-    - npm install
+    - sudo npm install
 
   Start:
     - echo "Starting application"
